@@ -1,24 +1,31 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from pprint import pprint
 import json
 from selenium_stealth import stealth
 import time
 
-usernames = ['emi.ciappi', 'shakira'] #usernames to be scraped
-proxy = "server:port"
+usernames = [ 'shakira', 'jilo'] # write the usernames that you want to scrap
+# proxy = "server:port"
 output = {}
+
+def main():
+    login('enter_your_username', 'enter_your_password')
+    for username in usernames: #loop going through usernames
+        
+        scrape(username)
 
 def prepare_browser(): # set driver
 
     chrome_options = webdriver.ChromeOptions()
     
-    chrome_options.add_argument(f'--proxy-server={proxy}') #add proxies to the bowser options
+    # chrome_options.add_argument(f'--proxy-server={proxy}') #add proxies to the bowser options
     chrome_options.add_argument("start-maximized")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
     
-    driver = webdriver.Chrome(options= chrome_options)
+    driver = webdriver.Chrome(options= chrome_options, executable_path=r"C:\chrome-driver\chromedriver.exe")
 
     #get more anonimity
     stealth(driver, 
@@ -52,6 +59,22 @@ def parse_data(username, user_data): #function that will get the data that I wan
         'post': captions 
     }
 
+#IG login function
+def login(ig_user, ig_pass):
+    ig_url = 'https://www.instagram.com/'
+    chrome = prepare_browser()
+    chrome.get(ig_url)
+    time.sleep(7)
+
+    username_field = chrome.find_element(By.XPATH, '/html/body/div[2]/div/div/div/div[1]/div/div/div/div[1]/section/main/article/div[2]/div[1]/div[2]/form/div/div[1]/div/label/input')
+    username_field.send_keys(ig_user)
+
+    password_field = chrome.find_element(By.XPATH, '//*[@id="loginForm"]/div/div[2]/div/label/input')
+    password_field.send_keys(ig_pass)
+
+    password_field.submit()
+    time.sleep(7)
+
 def scrape(username):
     
     url = f'https://www.instagram.com/{username}/?__a=1&__d=dis'
@@ -73,9 +96,7 @@ def scrape(username):
         chrome.quit()
         time.sleep(5)
 
-def main():
-    for username in usernames: #loop going through usernames
-        scrape(username)
+
 
 
 
